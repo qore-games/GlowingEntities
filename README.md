@@ -27,6 +27,10 @@ Then, configure the maven shade plugin to relocate the classes location. You can
 > Until 1.3.4, the util was under the groupId `io.github.skytasul`.  
 > After 1.3.5, it has changed to `fr.skytasul`.
 
+> [!IMPORTANT]  
+> The plugin loading strategy must be `POSTWORLD`. It is the default behavior of Spigot plugins.  
+> If you are having errors, please check that your _plugin.yml_ does not contain the `load: STARTUP` file.
+
 ## How to use?
 ### Make entities glow
 1. Initialize the `GlowingEntities` object somewhere where you can easily get it, using `new GlowingEntities(plugin)`.
