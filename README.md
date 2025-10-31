@@ -28,8 +28,9 @@ Then, configure the maven shade plugin to relocate the classes location. You can
 > After 1.3.5, it has changed to `fr.skytasul`.
 
 > [!IMPORTANT]  
-> The plugin loading strategy must be `POSTWORLD`. It is the default behavior of Spigot plugins.  
-> If you are having errors, please check that your _plugin.yml_ does not contain the `load: STARTUP` file.
+> When initializing the `GlowingEntities` object, the server must have at least 1 world loaded.  
+> If your plugin's load strategy in *plugin.yml* is `STARTUP`, you have to wait until a world has loaded in before initializing `GlowingEntities`.  
+> If your load strategy is `POSTWORLD` (the default load strategy), you can initialize it immediately.
 
 ## How to use?
 ### Make entities glow
