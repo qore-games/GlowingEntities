@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "games.qore"
-version = "2.0.0"
+version = "2.1.0"
 
 val githubOwner = findProperty("githubOwner") as String? ?: "qore-games"
 val githubRepo = findProperty("githubRepo") as String? ?: "GlowingEntities"
