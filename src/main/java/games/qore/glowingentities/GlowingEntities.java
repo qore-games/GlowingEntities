@@ -3,6 +3,7 @@ package games.qore.glowingentities;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.netty.channel.*;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.protocol.BundlePacket;
 import net.minecraft.network.protocol.Packet;
@@ -19,7 +20,6 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
@@ -118,7 +118,7 @@ public class GlowingEntities implements Listener {
 	 * @param receiver player which will see the entity glowing
 	 * @param color    color of the glowing effect, or {@code null} for default
 	 */
-	public void setGlowing(@NotNull Entity entity, @NotNull Player receiver, @Nullable ChatColor color) {
+	public void setGlowing(@NotNull Entity entity, @NotNull Player receiver, @Nullable NamedTextColor color) {
 		String teamID = entity instanceof Player ? entity.getName() : entity.getUniqueId().toString();
 		setGlowing(entity.getEntityId(), teamID, receiver, color, Packets.getEntityFlags(entity));
 	}
@@ -143,7 +143,7 @@ public class GlowingEntities implements Listener {
 	 * @param color    color of the glowing effect, or {@code null} for default
 	 */
 	public void setGlowing(int entityID, @NotNull String teamID, @NotNull Player receiver,
-			@Nullable ChatColor color) {
+			@Nullable NamedTextColor color) {
 		setGlowing(entityID, teamID, receiver, color, (byte) 0);
 	}
 
@@ -158,10 +158,8 @@ public class GlowingEntities implements Listener {
 	 *                   See <a href="https://wiki.vg/Entity_metadata#Entity">wiki.vg</a>.
 	 */
 	public void setGlowing(int entityID, @NotNull String teamID, @NotNull Player receiver,
-			@Nullable ChatColor color, byte otherFlags) {
+			@Nullable NamedTextColor color, byte otherFlags) {
 		ensureEnabled();
-		if (color != null && !color.isColor())
-			throw new IllegalArgumentException("ChatColor must be a color format");
 
 		PlayerData playerData = glowing.get(receiver);
 		if (playerData == null) {
@@ -235,7 +233,7 @@ public class GlowingEntities implements Listener {
 		final Player player;
 		final Map<Integer, GlowingData> glowingDatas;
 		ChannelHandler packetsHandler;
-		EnumSet<ChatColor> sentColors;
+		Set<NamedTextColor> sentColors;
 
 		PlayerData(GlowingEntities instance, Player player) {
 			this.instance = instance;
@@ -248,11 +246,11 @@ public class GlowingEntities implements Listener {
 		final PlayerData player;
 		final int entityID;
 		final String teamID;
-		ChatColor color;
+		NamedTextColor color;
 		byte otherFlags;
 		boolean enabled;
 
-		GlowingData(PlayerData player, int entityID, String teamID, ChatColor color, byte otherFlags) {
+		GlowingData(PlayerData player, int entityID, String teamID, NamedTextColor color, byte otherFlags) {
 			this.player = player;
 			this.entityID = entityID;
 			this.teamID = teamID;
@@ -273,7 +271,7 @@ public class GlowingEntities implements Listener {
 		private static final Object SENTINEL = new Object();
 
 		private static final Scoreboard DUMMY_SCOREBOARD = new Scoreboard();
-		private static final EnumMap<ChatColor, TeamData> teams = new EnumMap<>(ChatColor.class);
+		private static final Map<NamedTextColor, TeamData> teams = new HashMap<>();
 
 		protected static final EntityType<?> shulkerEntityType = EntityType.SHULKER;
 
@@ -351,7 +349,8 @@ public class GlowingEntities implements Listener {
 		public static void setGlowingColor(GlowingData data) {
 			boolean sendCreation = false;
 			if (data.player.sentColors == null) {
-				data.player.sentColors = EnumSet.of(data.color);
+				data.player.sentColors = new HashSet<>();
+				data.player.sentColors.add(data.color);
 				sendCreation = true;
 			} else if (data.player.sentColors.add(data.color)) {
 				sendCreation = true;
@@ -501,13 +500,11 @@ public class GlowingEntities implements Listener {
 			private final Cache<String, ClientboundSetPlayerTeamPacket> removePackets =
 					CacheBuilder.newBuilder().expireAfterAccess(3, TimeUnit.MINUTES).build();
 
-			TeamData(int uid, ChatColor color) {
-				if (!color.isColor())
-					throw new IllegalArgumentException();
-				String id = "glow-" + uid + color.getChar();
+			TeamData(int uid, NamedTextColor color) {
+				String id = "glow-" + uid + color.toString();
 				team = new PlayerTeam(DUMMY_SCOREBOARD, id);
 				team.setCollisionRule(Team.CollisionRule.NEVER);
-				team.setColor(Objects.requireNonNull(ChatFormatting.getByCode(color.getChar())));
+				Optional.ofNullable(ChatFormatting.getByHexValue(color.value())).ifPresent(team::setColor);
 				creationPacket = ClientboundSetPlayerTeamPacket.createAddOrModifyPacket(team, true);
 			}
 

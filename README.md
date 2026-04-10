@@ -89,7 +89,7 @@ public final class MyPlugin extends JavaPlugin {
 ### Make entities glow
 
 1. Create a single `GlowingEntities` instance with `new GlowingEntities(plugin)`.
-2. Call `GlowingEntities#setGlowing(Entity entity, Player receiver, ChatColor color)`.
+2. Call `GlowingEntities#setGlowing(Entity entity, Player receiver, NamedTextColor color)`.
 3. Reuse `setGlowing` with a different color to update it.
 4. Call `GlowingEntities#unsetGlowing(Entity entity, Player receiver)` to remove the effect.
 5. Call `GlowingEntities#disable()` when your plugin shuts down.

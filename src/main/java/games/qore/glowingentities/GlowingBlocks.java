@@ -2,8 +2,8 @@ package games.qore.glowingentities;
 
 import games.qore.glowingentities.GlowingEntities.Packets;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -64,7 +64,7 @@ public class GlowingBlocks implements Listener {
 	/**
 	 * Disables the API.
 	 * <p>
-	 * Methods such as {@link #setGlowing(Location, Player, ChatColor)} and
+	 * Methods such as {@link #setGlowing(Location, Player, NamedTextColor)} and
 	 * {@link #unsetGlowing(Location, Player)} will no longer be usable.
 	 *
 	 * @see #enable()
@@ -100,7 +100,7 @@ public class GlowingBlocks implements Listener {
 	 * @param receiver player which will see the block glowing
 	 * @param color color of the glowing effect
 	 */
-	public void setGlowing(@NotNull Block block, @NotNull Player receiver, @NotNull ChatColor color) {
+	public void setGlowing(@NotNull Block block, @NotNull Player receiver, @NotNull NamedTextColor color) {
 		setGlowing(block.getLocation(), receiver, color);
 	}
 
@@ -111,13 +111,10 @@ public class GlowingBlocks implements Listener {
 	 * @param receiver player which will see the block glowing
 	 * @param color color of the glowing effect
 	 */
-	public void setGlowing(@NotNull Location block, @NotNull Player receiver, @NotNull ChatColor color) {
+	public void setGlowing(@NotNull Location block, @NotNull Player receiver, @NotNull NamedTextColor color) {
 		ensureEnabled();
 
 		block = normalizeLocation(block);
-
-		if (!color.isColor())
-			throw new IllegalArgumentException("ChatColor must be a color format");
 
 		PlayerData playerData = glowing.computeIfAbsent(Objects.requireNonNull(receiver), PlayerData::new);
 
@@ -214,17 +211,17 @@ public class GlowingBlocks implements Listener {
 		private final @NotNull Player player;
 		private final @NotNull Location location;
 
-		private @NotNull ChatColor color;
+		private @NotNull NamedTextColor color;
 		private int entityId;
 		private UUID entityUuid;
 
-		public GlowingBlockData(@NotNull Player player, @NotNull Location location, @NotNull ChatColor color) {
+		public GlowingBlockData(@NotNull Player player, @NotNull Location location, @NotNull NamedTextColor color) {
 			this.player = player;
 			this.location = location;
 			this.color = color;
 		}
 
-		public void setColor(@NotNull ChatColor color) {
+		public void setColor(@NotNull NamedTextColor color) {
 			this.color = color;
 
 			if (entityUuid != null)
