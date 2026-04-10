@@ -11,7 +11,7 @@ version = "2.1.0"
 
 val githubOwner = findProperty("githubOwner") as String? ?: "qore-games"
 val githubRepo = findProperty("githubRepo") as String? ?: "GlowingEntities"
-val githubBranch = findProperty("githubBranch") as String? ?: "main"
+val githubBranch = findProperty("githubBranch") as String? ?: "master"
 val githubUrl = "https://github.com/$githubOwner/$githubRepo"
 
 java {
