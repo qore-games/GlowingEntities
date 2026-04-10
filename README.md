@@ -1,6 +1,6 @@
 # GlowingEntities
 
-![Maven Central](https://img.shields.io/maven-central/v/games.qore/glowingentities)
+![Maven Central](https://img.shields.io/maven-central/v/games.qore/GlowingEntities)
 
 A lightweight utility to make entities (and blocks) glow per-player on modern Paper servers.
 
