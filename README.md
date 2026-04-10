@@ -1,52 +1,104 @@
 # GlowingEntities
 
-![Maven Central](https://img.shields.io/maven-central/v/fr.skytasul/glowingentities)
+![Maven Central](https://img.shields.io/maven-central/v/games.qore/glowingentities)
 
-An util to easily set glowing entities (or blocks) per-player on a Spigot server.
+A lightweight utility to make entities (and blocks) glow per-player on modern Paper servers.
 
-No ProtocolLib, no dependency, compatible from Minecraft 1.17 to 1.21!
+Originally by **SkytAsul**, modified and maintained by **qore games**.
+
+- Paper-only `26.1+`
+- No ProtocolLib dependency
 
 ![Glowing entities animation](demo.gif)
 
 ![Glowing blocks animation](demo-blocks.gif)
 
-## How to install?
-Add this requirement to your maven `pom.xml` file:
+## Installation
+
+This library is intended to be embedded in your plugin jar. You should shade and relocate it.
+
+### Gradle
+
+```kotlin
+dependencies {
+    implementation("games.qore:glowingentities:{VERSION}")
+}
+```
+
+### Maven
 
 ```xml
 <dependency>
-  <groupId>fr.skytasul</groupId>
+  <groupId>games.qore</groupId>
   <artifactId>glowingentities</artifactId>
   <version>{VERSION}</version>
   <scope>compile</scope>
 </dependency>
 ```
-Then, configure the maven shade plugin to relocate the classes location. You can also use the Spigot library resolver to download the library, or Paper's plugin loader.
 
-> [!NOTE]  
-> Until 1.3.4, the util was under the groupId `io.github.skytasul`.  
-> After 1.3.5, it has changed to `fr.skytasul`.
+You must shade this library and relocate the package to avoid classpath conflicts.
 
-> [!IMPORTANT]  
-> When initializing the `GlowingEntities` object, the server must have at least 1 world loaded.  
-> If your plugin's load strategy in *plugin.yml* is `STARTUP`, you have to wait until a world has loaded in before initializing `GlowingEntities`.  
-> If your load strategy is `POSTWORLD` (the default load strategy), you can initialize it immediately.
+Minimal Gradle Shadow setup:
 
-## How to use?
+```kotlin
+plugins {
+    id("com.gradleup.shadow") version "9.4.1"
+}
+
+tasks.shadowJar {
+    relocate("games.qore.glowingentities", "com.your.plugin.glowingentities")
+}
+```
+
+## Usage
+
+### Basic example
+
+```java
+import games.qore.glowingentities.GlowingEntities;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+
+public final class MyPlugin extends JavaPlugin {
+
+    private GlowingEntities glowingEntities;
+
+    @Override
+    public void onEnable() {
+        this.glowingEntities = new GlowingEntities(this);
+
+        // Example placeholders: replace with your real entities/players.
+        Item itemEntity = null;
+        Player player = null;
+
+        if (itemEntity != null && player != null) {
+            this.glowingEntities.setGlowing(itemEntity, player);
+        }
+    }
+
+    @Override
+    public void onDisable() {
+        if (this.glowingEntities != null) {
+            this.glowingEntities.disable();
+        }
+    }
+}
+```
+
 ### Make entities glow
-1. Initialize the `GlowingEntities` object somewhere where you can easily get it, using `new GlowingEntities(plugin)`.
-It is not recommended to create multiple `GlowingEntities` instances!
 
-2. Use `GlowingEntities#setGlowing(Entity entity, Player receiver, ChatColor color)` to make an entity glow a color for a player!
-
-3. You can change its glowing color by reusing the same method but changing the `color` parameter.
-
-4. If you no longer wants your entity to glow, use `GlowingEntities#unsetGlowing(Entity entity, Player receiver)`.
-
-5. When you are completely done with the glowing API (for instance, when your plugin is shutting down), remember to use `GlowingEntities#disable()`.
+1. Create a single `GlowingEntities` instance with `new GlowingEntities(plugin)`.
+2. Call `GlowingEntities#setGlowing(Entity entity, Player receiver, ChatColor color)`.
+3. Reuse `setGlowing` with a different color to update it.
+4. Call `GlowingEntities#unsetGlowing(Entity entity, Player receiver)` to remove the effect.
+5. Call `GlowingEntities#disable()` when your plugin shuts down.
 
 ### Make blocks glow
-The same as before but with the `GlowingBlocks` class :)
 
-> **Warning**
-> The `GlowingBlocks` util can only be used on Paper-based servers, not Bukkit or Spigot ones!
+Use `GlowingBlocks` in the same way.
+
+## Attribution
+
+- Original project and API design: SkytAsul
+- This fork: package namespace migration to `games.qore.glowingentities`, Gradle/Paper-first tooling, and Paper `26.1+` support

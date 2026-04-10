@@ -1,7 +1,14 @@
+# Build output
+/build
 /bin
 /target
+
+# Gradle
+.gradle
+
+# IDE
 /.settings
+/.idea
+*.iml
 .classpath
 .project
-/rawMappings
-/dependency-reduced-pom.xml

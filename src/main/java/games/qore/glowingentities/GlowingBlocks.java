@@ -1,6 +1,6 @@
-package fr.skytasul.glowingentities;
+package games.qore.glowingentities;
 
-import fr.skytasul.glowingentities.GlowingEntities.Packets;
+import games.qore.glowingentities.GlowingEntities.Packets;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>
  * <i>Can only be used on Paper-based servers.</i>
  *
- * @author SkytAsul
+ * @author Originally by SkytAsul, modified by qore
  */
 public class GlowingBlocks implements Listener {
 
@@ -73,15 +73,8 @@ public class GlowingBlocks implements Listener {
 		if (!enabled)
 			return;
 		HandlerList.unregisterAll(this);
-		glowing.values().forEach(playerData -> {
-			playerData.datas.values().forEach(glowingData -> {
-				try {
-					glowingData.remove();
-				} catch (ReflectiveOperationException e) {
-					e.printStackTrace();
-				}
-			});
-		});
+		glowing.values().forEach(playerData ->
+				playerData.datas.values().forEach(GlowingBlockData::remove));
 		entities.disable();
 		glowing = null;
 		enabled = false;
@@ -106,10 +99,8 @@ public class GlowingBlocks implements Listener {
 	 * @param block block to make glow
 	 * @param receiver player which will see the block glowing
 	 * @param color color of the glowing effect
-	 * @throws ReflectiveOperationException
 	 */
-	public void setGlowing(@NotNull Block block, @NotNull Player receiver, @NotNull ChatColor color)
-			throws ReflectiveOperationException {
+	public void setGlowing(@NotNull Block block, @NotNull Player receiver, @NotNull ChatColor color) {
 		setGlowing(block.getLocation(), receiver, color);
 	}
 
@@ -119,10 +110,8 @@ public class GlowingBlocks implements Listener {
 	 * @param block location of the block to make glow
 	 * @param receiver player which will see the block glowing
 	 * @param color color of the glowing effect
-	 * @throws ReflectiveOperationException
 	 */
-	public void setGlowing(@NotNull Location block, @NotNull Player receiver, @NotNull ChatColor color)
-			throws ReflectiveOperationException {
+	public void setGlowing(@NotNull Location block, @NotNull Player receiver, @NotNull ChatColor color) {
 		ensureEnabled();
 
 		block = normalizeLocation(block);
@@ -148,9 +137,8 @@ public class GlowingBlocks implements Listener {
 	 *
 	 * @param block block to remove glowing effect from
 	 * @param receiver player which will no longer see the glowing effect
-	 * @throws ReflectiveOperationException
 	 */
-	public void unsetGlowing(@NotNull Block block, @NotNull Player receiver) throws ReflectiveOperationException {
+	public void unsetGlowing(@NotNull Block block, @NotNull Player receiver) {
 		unsetGlowing(block.getLocation(), receiver);
 	}
 
@@ -159,9 +147,8 @@ public class GlowingBlocks implements Listener {
 	 *
 	 * @param block location of the block to remove glowing effect from
 	 * @param receiver player which will no longer see the glowing effect
-	 * @throws ReflectiveOperationException
 	 */
-	public void unsetGlowing(@NotNull Location block, @NotNull Player receiver) throws ReflectiveOperationException {
+	public void unsetGlowing(@NotNull Location block, @NotNull Player receiver) {
 		ensureEnabled();
 
 		block = normalizeLocation(block);
@@ -205,11 +192,7 @@ public class GlowingBlocks implements Listener {
 			if (Objects.equals(location.getWorld(), event.getWorld())
 					&& location.getBlockX() >> 4 == event.getChunk().getX()
 					&& location.getBlockZ() >> 4 == event.getChunk().getZ()) {
-				try {
-					blockData.spawn();
-				} catch (ReflectiveOperationException ex) {
-					ex.printStackTrace();
-				}
+				blockData.spawn();
 			}
 		});
 	}
@@ -241,14 +224,14 @@ public class GlowingBlocks implements Listener {
 			this.color = color;
 		}
 
-		public void setColor(@NotNull ChatColor color) throws ReflectiveOperationException {
+		public void setColor(@NotNull ChatColor color) {
 			this.color = color;
 
 			if (entityUuid != null)
 				entities.setGlowing(entityId, entityUuid.toString(), player, color, FLAGS);
 		}
 
-		public void spawn() throws ReflectiveOperationException {
+		public void spawn() {
 			init();
 
 			Packets.createEntity(player, entityId, entityUuid, Packets.shulkerEntityType, location);
@@ -256,7 +239,7 @@ public class GlowingBlocks implements Listener {
 			// this will take care of refreshing the color thanks to the packet handler in GlowingEntities
 		}
 
-		public void remove() throws ReflectiveOperationException {
+		public void remove() {
 			if (entityUuid == null)
 				return;
 
@@ -264,7 +247,7 @@ public class GlowingBlocks implements Listener {
 			entities.unsetGlowing(entityId, player);
 		}
 
-		private void init() throws ReflectiveOperationException {
+		private void init() {
 			if (entityUuid == null) {
 				entityId = ENTITY_ID_COUNTER.getAndIncrement();
 				entityUuid = UUID.randomUUID();
@@ -276,3 +259,5 @@ public class GlowingBlocks implements Listener {
 	}
 
 }
+
+
